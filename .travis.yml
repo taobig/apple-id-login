@@ -1,0 +1,56 @@
+#
+# Travis Setup
+#
+
+# faster builds on new travis setup not using sudo
+sudo: false
+language: php
+
+php:
+  - 7.1
+  - 7.2
+  - 7.3
+  - 7.4
+  - nightly
+
+matrix:
+  fast_finish: true
+
+  allow_failures:
+    - php: nightly
+
+
+# cache vendor dirs
+cache:
+  directories:
+    - vendor
+    - $HOME/.composer/cache
+
+#before_install:
+#  - sudo apt-get -qq update
+
+install:
+  - |
+  - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
+  - travis_retry composer self-update && composer --version
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  # core framework:
+  - travis_retry composer global require "fxp/composer-asset-plugin:^1.4.2" && composer global show
+  - travis_retry composer install --prefer-dist --no-interaction
+
+before_script:
+  # show some versions and env information
+  - php -r "echo ini_get('memory_limit').PHP_EOL;"
+  - echo 'memory_limit = 64M' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  - php -r "echo ini_get('memory_limit').PHP_EOL;"
+
+script:
+  # ensure no files contain UTF-8 byte order mark
+  - if ! grep -rlI $'\xEF\xBB\xBF' src/ ; then echo "no utf8 BOM found"; else echo "found utf8 BOM in some files. See above."; exit 1; fi
+  # validate composer.json
+  - composer validate --no-check-lock
+  # run PHPUnit
+  - vendor/bin/phpunit --verbose
+
+after_success:
+ - travis_retry php vendor/bin/php-coveralls -v

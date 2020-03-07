@@ -7,6 +7,7 @@ namespace taobig\apple;
 use CoderCat\JWKToPEM\JWKConverter;
 use Firebase\JWT\JWT;
 use GuzzleHttp\Client;
+use taobig\apple\model\Token;
 
 class IdentityTokenChecker
 {
@@ -14,7 +15,7 @@ class IdentityTokenChecker
     //https://forums.developer.apple.com/thread/124175
     //https://forums.developer.apple.com/thread/129047
     //https://jwt.io/
-    public static function checkAppleIdentityToken(string $identityToken)
+    public static function checkAppleIdentityToken(string $identityToken): Token
     {
         $url = 'https://appleid.apple.com/auth/keys';
         $client = new Client([
@@ -33,7 +34,13 @@ class IdentityTokenChecker
             $keyMap[$kid] = $jwkConverter->toPEM($key);
             $allowedAlgs[$alg] = true;
         }
-        return JWT::decode($identityToken, $keyMap, array_keys($allowedAlgs));
+        $obj = JWT::decode($identityToken, $keyMap, array_keys($allowedAlgs));
+        $token = new Token();
+        $properties = get_object_vars($obj);
+        foreach ($properties as $propertyName => $propertyValue) {
+            $token->{$propertyName} = $propertyValue;
+        }
+        return $token;
     }
 
 }

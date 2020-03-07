@@ -18,6 +18,7 @@ composer require taobig/apple-id-login
 
 ## Usage
 ```
+/** @var taobig\apple\model\Token $obj */
 $obj = IdentityTokenChecker::checkAppleIdentityToken($token);
 $obj->email;
 ```

@@ -7,10 +7,6 @@
 	"minimum-stability" : "stable",
 	"require" : {
 		"php" : "^7.1",
-		"php-64bit": "^7.1",
-		"ext-ctype":"*",
-		"ext-mbstring":"*",
-		"ext-bcmath":"*",
 		"ext-json": "*",
 		"guzzlehttp/guzzle": "^6.3",
 		"codercat/jwk-to-pem": "^0.0.3",

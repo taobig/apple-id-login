@@ -23,7 +23,7 @@ class Token
     /** @var string */
     public $email_verified;// "true",
     /** @var string */
-    public $is_private_email;// "true",
+    public $is_private_email;// "true"/NULL
     /** @var int */
     public $auth_time;// 1583464655,
     /** @var bool */

@@ -11,7 +11,7 @@ php:
   - 7.2
   - 7.3
   - 7.4
-  - nightly
+  - 8.0
 
 matrix:
   fast_finish: true
@@ -34,8 +34,6 @@ install:
   - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
   - travis_retry composer self-update && composer --version
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  # core framework:
-  - travis_retry composer global require "fxp/composer-asset-plugin:^1.4.2" && composer global show
   - travis_retry composer install --prefer-dist --no-interaction
 
 before_script:

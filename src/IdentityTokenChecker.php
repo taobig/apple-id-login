@@ -4,8 +4,8 @@
 namespace taobig\apple;
 
 
-use CoderCat\JWKToPEM\JWKConverter;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use GuzzleHttp\Client;
 use taobig\apple\model\Token;
 
@@ -23,18 +23,15 @@ class IdentityTokenChecker
         ]);
         $response = $client->request('GET', $url);
         $body = $response->getBody()->getContents();
-        $keys = json_decode($body, true)['keys'];
+        $inputKeys = json_decode($body, true)['keys'];
 
-        $keyMap = [];
-        $allowedAlgs = [];
-        foreach ($keys as $key) {
+        $keys = [];
+        foreach ($inputKeys as $key) {
             $kid = $key['kid'];
             $alg = $key['alg'];//'RS256'...
-            $jwkConverter = new JWKConverter();
-            $keyMap[$kid] = $jwkConverter->toPEM($key);
-            $allowedAlgs[$alg] = true;
+            $keys[] = new Key($kid, $alg);
         }
-        $obj = JWT::decode($identityToken, $keyMap, array_keys($allowedAlgs));
+        $obj = JWT::decode($identityToken, $keys);
         $token = new Token();
         $properties = get_object_vars($obj);
         foreach ($properties as $propertyName => $propertyValue) {
